@@ -1,0 +1,8 @@
+vendor
+<<<<<<< HEAD
+dev
+=======
+>>>>>>> dev
+config.php
+.vscode
+.idea
