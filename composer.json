@@ -1,0 +1,20 @@
+{
+    "name": "lazarusphp/session-manager",
+    "description": "Session manager for lazarus Framework",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Lazarusphp\\SessionManager\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "martin bamber"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "lazarusphp/lazarusdb": "dev-main"
+    }
+}
