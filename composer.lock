@@ -4,23 +4,22 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fca7ee1d80477e6454f68d21866be833",
+    "content-hash": "924c0773626916a301c01700ac474c37",
     "packages": [
         {
             "name": "lazarusphp/lazarusdb",
-            "version": "dev-main",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/LazarusModules/Lazarus-db.git",
-                "reference": "21c9dcbb5c33a3d8f9893a743326ac4b380ca42e"
+                "reference": "8bb6db5e34e4c4c88e66a7d881a3bd8cbcd4e696"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LazarusModules/Lazarus-db/zipball/21c9dcbb5c33a3d8f9893a743326ac4b380ca42e",
-                "reference": "21c9dcbb5c33a3d8f9893a743326ac4b380ca42e",
+                "url": "https://api.github.com/repos/LazarusModules/Lazarus-db/zipball/8bb6db5e34e4c4c88e66a7d881a3bd8cbcd4e696",
+                "reference": "8bb6db5e34e4c4c88e66a7d881a3bd8cbcd4e696",
                 "shasum": ""
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -39,14 +38,14 @@
             "description": "Database connection mnager for LazarusPhp framework",
             "support": {
                 "issues": "https://github.com/LazarusModules/Lazarus-db/issues",
-                "source": "https://github.com/LazarusModules/Lazarus-db/tree/main"
+                "source": "https://github.com/LazarusModules/Lazarus-db/tree/v1.0.0"
             },
-            "time": "2024-05-28T15:12:11+00:00"
+            "time": "2024-05-29T09:50:06+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,

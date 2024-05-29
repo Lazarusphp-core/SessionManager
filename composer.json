@@ -13,8 +13,8 @@
             "name": "martin bamber"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
-        "lazarusphp/lazarusdb": "dev-main"
+        "lazarusphp/lazarusdb": "^1.0.0"  
     }
 }
