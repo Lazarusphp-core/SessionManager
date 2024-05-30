@@ -13,33 +13,42 @@ class Sessions
     private $mysid;
     private $write_expiry;
     private $date;
-    public function __construct()
+
+    public $time;
+    public function __construct($rememberme=null)
     {
     
+        
         $this->db = new Database();
         $this->table = "sessions";
         $this->date = new Date();
-
-      
-            // session_start();
-    
+        // Auto Login
+        $this->time = 60*60*24*7;
     }
 
     public function Start()
     {
         session_set_save_handler(
-            [$this,"OpenSession"],
-            [$this,"CloseSession"],
-            [$this,"ReadSession"],
-            [$this,"WriteSession"],
-            [$this,"DestroySession"],
-            [$this,"WatchSession"],
+            [$this,"open"],
+            [$this,"close"],
+            [$this,"read"],
+            [$this,"write"],
+            [$this,"destroy"],
+            [$this,"gc"],
         );
-
         session_start();
+        // Create a cookie Of current Session in place of Regenerate_id();
+        setcookie(session_name(), session_id(), time() + $this->time);
+
+        // session_set_cookie_params($this->time);
+        // if (session_start(['cookie_lifetime' => $this->time])) {
+        //     setcookie(session_name(),session_id(),$this->time);
+        // } else {
+        //     session_create_id(session_id());
+        // }
     }
 
-    public function OpenSession()
+    public function open()
     {
        return true;
     }
@@ -51,7 +60,7 @@ class Sessions
     //     session_abort();
     // }
 
-    public function ReadSession($sessionID) :string
+    public function read($sessionID) :string
     {
         
         // $this->mysid = session_id();
@@ -60,10 +69,10 @@ class Sessions
         return $stmt ? $stmt["data"] : ""; 
     }
 
-    public function WriteSession($sessionID, $data): bool
+    public function write($sessionID, $data): bool
     {
 
-        $date  = $this->date->AddDate("now")->add(new DateInterval("P1Y"))->format("Y-m-d H:i:s");
+        $date  = $this->date->AddDate("now")->add(new DateInterval("P365D"))->format("Y-m-d H:i:s");
         $this->db->AddParams(":sessionID", session_id());
         $this->db->AddParams(":data", $data);
         $this->db->AddParams(":expiry", $date);
@@ -72,14 +81,14 @@ class Sessions
        
     }
 
-    public function CloseSession(): bool
+    public function close(): bool
     {
 
         // $this->db->CloseDb();
         return true;
     }
 
-    public function DestroySession($sessionID): bool
+    public function destroy($sessionID): bool
     {
         $this->db->AddParams(":sessionID", session_id());
         $this->db->GenerateSql("DELETE FROM " . $this->table . " WHERE session_id=:sessionID");
@@ -88,7 +97,7 @@ class Sessions
    
     }
 
-    public function GCSession()
+    public function gc($maxtime)
     {
         return true;
     }
@@ -122,19 +131,6 @@ class Sessions
     }
  }
 
-
-
-
-
-    public function Create($name,$value)
-    {
-        $_SESSION[$name] = $value;
-    }
-
-    public function GetSession($name)
-    {
-        return $_SESSION[$name];
-    }
 
 
 
