@@ -36,16 +36,13 @@ class Sessions
             [$this,"destroy"],
             [$this,"gc"],
         );
-        session_start();
-        // Create a cookie Of current Session in place of Regenerate_id();
-        setcookie(session_name(), session_id(), time() + $this->time);
-
-        // session_set_cookie_params($this->time);
-        // if (session_start(['cookie_lifetime' => $this->time])) {
-        //     setcookie(session_name(),session_id(),$this->time);
-        // } else {
-        //     session_create_id(session_id());
-        // }
+        
+        if(session_start())
+        {
+            // Set Cookie to ReCirculate the browser value on Boot
+            setcookie(session_name(), session_id(), time() + $this->time);
+        }
+    
     }
 
     public function open()
