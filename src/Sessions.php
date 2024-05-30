@@ -5,6 +5,7 @@ use LazarusPhp\DatabaseManager\Database;
 use App\System\Classes\Required\Date;
 use DateInterval;
 use PDO;
+use PDOException;
 
 class Sessions
 {
@@ -13,6 +14,7 @@ class Sessions
     private $mysid;
     private $write_expiry;
     private $date;
+    private $gcc = [];
 
     public $time;
     public function __construct($rememberme=null)
@@ -36,11 +38,11 @@ class Sessions
             [$this,"destroy"],
             [$this,"gc"],
         );
-        
+
         if(session_start())
         {
             // Set Cookie to ReCirculate the browser value on Boot
-            setcookie(session_name(), session_id(), time() + $this->time);
+            setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
         }
     
     }
@@ -94,9 +96,26 @@ class Sessions
    
     }
 
-    public function gc($maxtime)
+    public function gc()
     {
-        return true;
+        $d = new Date();
+        $expiry = $d->AddDate("now")->format("Y-m-d");
+        $id = session_id();
+        $stmt = $this->db->connect()->prepare("SELECT * FROM sessions");
+
+
+        if ($stmt->execute()) {
+            foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $session) {
+                if ($session->expiry < $expiry && $session->session_id != session_id()) {
+                    // Temporary Fix Requires Database Code Restructure
+                    $deleteStmt = $this->db->connect()->prepare("DELETE FROM sessions WHERE session_id = :session_id");
+                    $deleteStmt->bindParam(':session_id', $session->session_id);
+                    $deleteStmt->execute();
+                }
+            }
+        } else {
+            echo "Failed";
+        }
     }
 
     // Add A Session Watch Script to run;
@@ -114,6 +133,15 @@ class Sessions
 /** Modify Sessions if anything changes
  * Boot the Sessions on bootup with Core.php
  */
+
+ public function Garbage_Collect($value = [])
+ {
+    var_dump($this->gcc);
+    foreach($this->gcc as $value)
+    {
+        $this->db->connect()->prepare("DELETE FROM sessions WHERE session_id = ". $value)->execute();
+    }
+ }
 
  public function WatchSession()
  {
