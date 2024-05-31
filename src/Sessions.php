@@ -98,23 +98,13 @@ class Sessions
 
     public function gc()
     {
-        $d = new Date();
-        $expiry = $d->AddDate("now")->format("Y-m-d");
-        $id = session_id();
-        $stmt = $this->db->connect()->prepare("SELECT * FROM sessions");
+        $expiry = $this->date->AddDate("now")->format("Y-m-d");
 
-
-        if ($stmt->execute()) {
-            foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $session) {
-                if ($session->expiry < $expiry && $session->session_id != session_id()) {
-                    // Temporary Fix Requires Database Code Restructure
-                    $deleteStmt = $this->db->connect()->prepare("DELETE FROM sessions WHERE session_id = :session_id");
-                    $deleteStmt->bindParam(':session_id', $session->session_id);
-                    $deleteStmt->execute();
-                }
-            }
-        } else {
-            echo "Failed";
+        try {
+            $this->db->AddParams(":expiry",$expiry)->GenerateSql("DELETE FROM sessions where expiry  < :expiry");
+            echo "SUccess";
+        } catch (PDOException $e) {
+            throw new PDOException($e->getMessage() . $e->getCode());
         }
     }
 
@@ -134,14 +124,7 @@ class Sessions
  * Boot the Sessions on bootup with Core.php
  */
 
- public function Garbage_Collect($value = [])
- {
-    var_dump($this->gcc);
-    foreach($this->gcc as $value)
-    {
-        $this->db->connect()->prepare("DELETE FROM sessions WHERE session_id = ". $value)->execute();
-    }
- }
+
 
  public function WatchSession()
  {
