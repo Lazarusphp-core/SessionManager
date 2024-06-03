@@ -14,7 +14,6 @@ class Sessions
     private $mysid;
     private $write_expiry;
     private $date;
-    private $gcc = [];
 
     public $time;
     public function __construct($rememberme=null)
@@ -75,7 +74,7 @@ class Sessions
         $this->db->AddParams(":sessionID", session_id());
         $this->db->AddParams(":data", $data);
         $this->db->AddParams(":expiry", $date);
-        $this->db->GenerateSql("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)");
+        $this->db->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)");
         return true;
        
     }
@@ -90,7 +89,7 @@ class Sessions
     public function destroy($sessionID): bool
     {
         $this->db->AddParams(":sessionID", session_id());
-        $this->db->GenerateSql("DELETE FROM " . $this->table . " WHERE session_id=:sessionID");
+        $this->db->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID");
         return true;
     
    
@@ -101,7 +100,7 @@ class Sessions
         $expiry = $this->date->AddDate("now")->format("Y-m-d");
 
         try {
-            $this->db->AddParams(":expiry",$expiry)->GenerateSql("DELETE FROM sessions where expiry  < :expiry");
+            $this->db->AddParams(":expiry",$expiry)->GenerateQuery("DELETE FROM sessions where expiry  < :expiry");
             echo "SUccess";
         } catch (PDOException $e) {
             throw new PDOException($e->getMessage() . $e->getCode());
