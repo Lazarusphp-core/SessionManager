@@ -27,6 +27,11 @@ class Sessions
         $this->time = 60*60*24*7;
     }
 
+    public function RegenerateId()
+    {
+        return session_regenerate_id(true);
+    }
+
     public function Start()
     {
         session_set_save_handler(
@@ -51,19 +56,13 @@ class Sessions
        return true;
     }
 
-    
-
-    // public function __destruct()
-    // {
-    //     session_abort();
-    // }
 
     public function read($sessionID) :string
     {
         
         // $this->mysid = session_id();
-        $stmt = $this->db->AddParams(":sessionID",session_id())
-        ->One("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",PDO::FETCH_ASSOC);
+        $stmt = $this->db->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>session_id()])
+        ->One(PDO::FETCH_ASSOC);
         return $stmt ? $stmt["data"] : ""; 
     }
 
@@ -71,10 +70,8 @@ class Sessions
     {
 
         $date  = $this->date->AddDate("now")->add(new DateInterval("P365D"))->format("Y-m-d H:i:s");
-        $this->db->AddParams(":sessionID", session_id());
-        $this->db->AddParams(":data", $data);
-        $this->db->AddParams(":expiry", $date);
-        $this->db->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)");
+        $params =  [":sessionID"=>session_id(),":data"=>$data,":expiry"=>$date];
+        $this->db->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
         return true;
        
     }
@@ -86,10 +83,10 @@ class Sessions
         return true;
     }
 
-    public function destroy($sessionID): bool
+    public function destroy($sessionID=null): bool
     {
-        $this->db->AddParams(":sessionID", session_id());
-        $this->db->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID");
+        $params = [":sessionID"=>session_id()];
+        $this->db->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID",$params);
         return true;
     
    
@@ -100,8 +97,8 @@ class Sessions
         $expiry = $this->date->AddDate("now")->format("Y-m-d");
 
         try {
-            $this->db->AddParams(":expiry",$expiry)->GenerateQuery("DELETE FROM sessions where expiry  < :expiry");
-            echo "SUccess";
+            $params = [":expiry"=>$expiry];
+            $this->db->GenerateQuery("DELETE FROM sessions WHERE expiry  < :expiry",$params);
         } catch (PDOException $e) {
             throw new PDOException($e->getMessage() . $e->getCode());
         }
@@ -110,9 +107,10 @@ class Sessions
     // Add A Session Watch Script to run;
 
     // Unset All Sessions but Do not destroy
-    public function UnsetAll($key=null)
+    public function UnsetAll($key = null)
     {
-        $session = $this->db->AddParams(":sessionID", session_id())->One("select * from $this->table where session_id=:sessionID");
+        $this->db->sql("select * from $this->table where session_id=:sessionID", [":sessionID" => session_id()])->One();
+
         if (session_id() == $session->session_id) {
             foreach ($_SESSION as $key => $value) {
                 unset($_SESSION[$key]);
