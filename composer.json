@@ -1,5 +1,5 @@
 {
-    "name": "lazarusphp/session-manager",
+    "name": "lazarusphp/sessionmanager",
     "description": "Session manager for lazarus Framework",
     "type": "library",
     "license": "MIT",
