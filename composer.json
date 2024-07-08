@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Lazarusphp\\SessionManager\\": "src/"
+            "LazarusPhp\\SessionManager\\": "src/"
         }
     },
     "authors": [
@@ -15,6 +15,6 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "lazarusphp/databasemanager": "^1.0.0"  
+        "lazarusphp/databasemanager": "^1.0.1"  
     }
 }
