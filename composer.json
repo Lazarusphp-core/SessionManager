@@ -15,6 +15,6 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "lazarusphp/lazarusdb": "^1.0.0"  
+        "lazarusphp/databasemanager": "^1.0.0"  
     }
 }
