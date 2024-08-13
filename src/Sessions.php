@@ -15,8 +15,8 @@ class Sessions extends Database
     private $write_expiry;
     private $date;
 
-    public $time;
-    public function __construct($rememberme=null)
+    private $time;
+    public function __construct()
     {
         // Required To use Contructor of Database Class;
         parent::__construct();
@@ -43,7 +43,6 @@ class Sessions extends Database
 
     public function __isset($name)
     {
-        setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
         return isset($_SESSION[$name]);
     }
 
@@ -51,7 +50,7 @@ class Sessions extends Database
     {
         unset($_SESSION[$name]);
     }
-    public function RegenerateId()
+    public function newId()
     {
         return session_regenerate_id(true);
     }
@@ -70,6 +69,7 @@ class Sessions extends Database
         if(session_start())
         {
             // Set Cookie to ReCirculate the browser value on Boot
+                setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
         }
     
     }
@@ -126,9 +126,4 @@ class Sessions extends Database
             throw new PDOException($e->getMessage() . $e->getCode());
         }
     }
-
-
-
-
-    
 }
