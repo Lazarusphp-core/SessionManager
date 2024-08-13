@@ -40,7 +40,7 @@ for this example we will use a php file.
 
 ```
 $type = "";
-$hostname = "d";
+$hostname = "";
 $username = "";
 $password = "";
 $dbname = "";
