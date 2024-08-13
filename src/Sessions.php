@@ -21,19 +21,42 @@ class Sessions extends Database
         // Required To use Contructor of Database Class;
         parent::__construct();
         // End Parent Constructor;
-
         $this->table = "sessions";
         $this->date = new Date();
         // Auto Login
         $this->time = 60*60*24*7;
     }
 
+    
+    public function __set($name, $value)
+    {
+        $_SESSION[$name] = $value;
+    }
+
+    public function __get($name)
+    {
+        if(array_key_exists($name,$_SESSION))
+        {
+            return $_SESSION[$name];
+        }
+    }
+
+    public function __isset($name)
+    {
+        setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
+        return isset($_SESSION[$name]);
+    }
+
+    public function __unset($name)
+    {
+        unset($_SESSION[$name]);
+    }
     public function RegenerateId()
     {
         return session_regenerate_id(true);
     }
 
-    public function Start()
+    public function start()
     {
         session_set_save_handler(
             [$this,"open"],
@@ -47,7 +70,6 @@ class Sessions extends Database
         if(session_start())
         {
             // Set Cookie to ReCirculate the browser value on Boot
-            setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
         }
     
     }
@@ -104,38 +126,6 @@ class Sessions extends Database
             throw new PDOException($e->getMessage() . $e->getCode());
         }
     }
-
-    // Add A Session Watch Script to run;
-
-    // Unset All Sessions but Do not destroy
-    public function UnsetAll($key = null)
-    {
-        $this->sql("select * from $this->table where session_id=:sessionID", [":sessionID" => session_id()])->One();
-
-        if (session_id() == $session->session_id) {
-            foreach ($_SESSION as $key => $value) {
-                unset($_SESSION[$key]);
-            }
-        }
-    }
-/** Modify Sessions if anything changes
- * Boot the Sessions on bootup with Core.php
- */
-
-
-
- public function WatchSession()
- {
-    $date = $this->date->AddDate("now");
-    $session = $this->AddParams(":sessionID",session_id())->One("SELECT * FROM sessions WHERE session_id = :sessionID");
-    if($session->expiry < $this->date->AddDate("now")->format("Y-m-d")) {
-        session_regenerate_id();
-    }
-    else
-    {
-        return false;
-    }
- }
 
 
 
