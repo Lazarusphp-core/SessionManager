@@ -2,7 +2,7 @@
 namespace LazarusPhp\SessionManager;
 
 use LazarusPhp\DatabaseManager\Database;
-use App\System\Classes\Required\Date;
+use App\System\Classes\Date;
 use DateInterval;
 use PDO;
 use PDOException;
