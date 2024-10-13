@@ -2,14 +2,10 @@
 namespace LazarusPhp\SessionManager;
 
 use LazarusPhp\DatabaseManager\Database;
-use App\System\Classes\Date;
-use DateTime;
-use DateInterval;
-use LazarusPhp\SessionManager\SessionWriter;
 use PDO;
 use PDOException;
 
-class SessionCore extends SessionWriter
+class SessionCore extends Database
 {
     private $db;
     private $table = "";
