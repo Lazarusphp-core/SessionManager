@@ -3,30 +3,38 @@ namespace LazarusPhp\SessionManager;
 
 use LazarusPhp\DatabaseManager\Database;
 use App\System\Classes\Date;
+use DateTime;
 use DateInterval;
+use LazarusPhp\SessionManager\SessionWriter;
 use PDO;
 use PDOException;
 
-class SessionCore extends Database
+class SessionCore extends SessionWriter
 {
     private $db;
-    private $table;
+    private $table = "";
     private $mysid;
     private $write_expiry;
-    private $date;
+    public $date;
+
+    private $handle;
+
 
     private $time;
+    // Unix timestamp for now
+    private $now;
     public function __construct()
     {
-        // Required To use Contructor of Database Class;
         parent::__construct();
-        // End Parent Constructor;
-        $this->table = "sessions";
-        $this->date = new Date();
-        // Auto Login
-        $this->time = 60*60*24*7;
+        $this->now = time();
+        // Required To use Contructor of Database Class;
+        $this->time = $time ?? $this->time = 60*60*24*7;
+        $this->date = date("y-m-d h:i:s",$this->now+ $this->time);
+    }
 
-        ob_start();
+    public function instantiate($table=null)
+    {
+        $this->table = $table ?? $this->table = "sessions";
         session_set_save_handler(
             [$this,"open"],
             [$this,"close"],
@@ -35,41 +43,35 @@ class SessionCore extends Database
             [$this,"destroy"],
             [$this,"gc"],
         );
-
+        echo $this->table;
     }
-
-    
-    public function __set($name, $value)
+    /**
+     * Summary of start
+     * @param mixed $time
+     * @method newId(true)
+     * @return void
+     */
+    public function start($time=null)
     {
-        $_SESSION[$name] = $value;
-    }
 
-    public function __get($name)
-    {
-        if(array_key_exists($name,$_SESSION))
+        // Auto Login
+        if(session_status() !== PHP_SESSION_ACTIVE)
         {
-            return $_SESSION[$name];
+          if(session_start()){
+            $this->newId(true);
+            // Set the cookie Name;
+            setcookie(session_name(), session_id(), time() + $this->time,"/",$_SERVER['HTTP_HOST']);
+            }
+        
         }
+     
     }
 
-    public function __isset($name)
-    {
-        return isset($_SESSION[$name]);
-    }
-
-    public function __unset($name)
-    {
-        unset($_SESSION[$name]);
-    }
-    public function newId()
+/**
+ * return bool;
+ */    public function newId():bool
     {
         return session_regenerate_id(true);
-    }
-
-    public function start()
-    {
-
-    
     }
 
     public function open()
@@ -78,7 +80,7 @@ class SessionCore extends Database
     }
 
 
-    public function read($sessionID) :string
+    public function read($sessionID) :mixed
     {
         
         // $this->mysid = session_id();
@@ -87,11 +89,10 @@ class SessionCore extends Database
         return $stmt ? $stmt["data"] : ""; 
     }
 
-    public function write($sessionID, $data): bool
+    public function write($sessionID, $data): mixed
     {
 
-        $date  = $this->date->AddDate("now")->add(new DateInterval("P365D"))->format("Y-m-d H:i:s");
-        $params =  [":sessionID"=>session_id(),":data"=>$data,":expiry"=>$date];
+        $params =  [":sessionID"=>session_id(),":data"=>$data,":expiry"=>$this->date];
         $this->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
         return true;
        
@@ -113,7 +114,7 @@ class SessionCore extends Database
 
     public function gc()
     {
-        $expiry = $this->date->AddDate("now")->format("Y-m-d");
+        $expiry = date("y-m-d h:i:s",$this->now);
 
         try {
             $params = [":expiry"=>$expiry];
@@ -122,4 +123,6 @@ class SessionCore extends Database
             throw new PDOException($e->getMessage() . $e->getCode());
         }
     }
+
+     
 }
