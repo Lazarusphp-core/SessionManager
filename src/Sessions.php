@@ -2,23 +2,52 @@
 
 namespace LazarusPhp\SessionManager;
 
-class Sessions
+class Sessions extends SessionCore
 {
 
-    public static function boot()
-    {
-        return new SessionCore();
-    }
 
-    public static function Create($name,$value)
+    
+    public function __set($name, $value)
     {
         $_SESSION[$name] = $value;
     }
 
-    public static function Delete($name)
+    public function __get($name)
+    {
+        if(array_key_exists($name,$_SESSION))
+        {
+            return $_SESSION[$name];
+        }
+    }
+
+    public function deleteSingleSession($name): void
+    {
+        if(array_key_exists($name,$_SESSION)){
+        unset($_SESSION[$name]);
+    }
+    else
+    {
+        trigger_error("No Session for $name found, therefore could not be deleted");
+    }
+      
+    }
+
+    public function __isset($name)
+    {
+        return isset($_SESSION[$name]);
+    }
+
+    public function __unset($name)
     {
         unset($_SESSION[$name]);
     }
 
+    public function listall()
+    {
+        foreach($_SESSION as $key => $sessions)
+        {
+            echo "$key = $sessions <br>";
+        }
+    }
 
 }
