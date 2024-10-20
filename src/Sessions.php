@@ -6,6 +6,15 @@ class Sessions extends SessionCore
 {
 
 
+    public function setTz($tz="Europe/London")
+    {
+        return date_default_timezone_set($tz);
+    }
+
+    public function getTz()
+    {
+        return date_default_timezone_get();
+    }
     
     public function __set($name, $value)
     {
