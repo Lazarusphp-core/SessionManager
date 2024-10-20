@@ -44,14 +44,13 @@ class SessionCore extends Database
      * @method newId(true)
      * @return void
      */
-    public function start(int $days=0)
+    public function start(int $days=1)
     {
         define("DAYS",$days);
         // Auto Login
         if(session_status() !== PHP_SESSION_ACTIVE)
         {
-          if(session_start(
-          )){
+          if(session_start()){
             // Set the cookie Name;
             // unset($_COOKIE[session_name()]);
             /**
