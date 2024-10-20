@@ -52,12 +52,11 @@ class SessionCore extends Database
         {
           if(session_start()){
             // Set the cookie Name;
-            // unset($_COOKIE[session_name()]);
             /**
              * Added Browser cookie to store session name
              * used to prevent the session from being terminated after the browser closes.
              */
-            setcookie(session_name(), session_id(), time() + 60*60*24*DAYS,"/","*".$_SERVER['HTTP_HOST']);
+            setcookie(session_name(), session_id(), time() + 60*60*24*DAYS,"/",".".$_SERVER['HTTP_HOST'],true,true);
             }
         }
      
@@ -68,7 +67,7 @@ class SessionCore extends Database
  */  
 
 
-    public function open()
+    public function open():bool
     {
        return true;
     }
@@ -81,7 +80,7 @@ class SessionCore extends Database
         return $stmt ? $stmt["data"] : ""; 
     }
 
-    public function write($sessionID, $data): mixed
+    public function write($sessionID, $data): bool
     {
         // This needs fixing at some point tomorrow 
         // Currently Working
