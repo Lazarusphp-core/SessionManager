@@ -50,10 +50,15 @@ class SessionCore extends Database
         // Auto Login
         if(session_status() !== PHP_SESSION_ACTIVE)
         {
-          if(session_start()){
+          if(session_start(
+          )){
             // Set the cookie Name;
             // unset($_COOKIE[session_name()]);
-            // setcookie(session_name(), session_id(), time() + 60*60*24*DAYS,"/",$_SERVER['HTTP_HOST']);
+            /**
+             * Added Browser cookie to store session name
+             * used to prevent the session from being terminated after the browser closes.
+             */
+            setcookie(session_name(), session_id(), time() + 60*60*24*DAYS,"/","*".$_SERVER['HTTP_HOST']);
             }
         }
      
