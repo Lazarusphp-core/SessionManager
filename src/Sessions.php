@@ -5,7 +5,6 @@ namespace LazarusPhp\SessionManager;
 class Sessions extends SessionCore
 {
 
-
     public function setTz($tz="Europe/London")
     {
         return date_default_timezone_set($tz);
@@ -29,16 +28,28 @@ class Sessions extends SessionCore
         }
     }
 
-    public function deleteSingleSession($name): void
+    public function deleteSessions(...$args): void
     {
-        if(array_key_exists($name,$_SESSION)){
-        unset($_SESSION[$name]);
-    }
-    else
-    {
-        trigger_error("No Session for $name found, therefore could not be deleted");
-    }
-      
+        $count = count($args);
+        echo $count;
+        if($count > 0)
+        {
+            foreach($args as $arg)
+            {
+                if(array_key_exists($arg,$_SESSION))
+                {
+                    echo $arg;
+                    unset($_SESSION[$arg]);
+                    echo "$arg Deleted";
+                }
+            }
+        }
+        else
+        {
+            session_destroy();
+            echo "We Will just delete All Sessions";
+        }
+       
     }
 
     public function __isset($name)
