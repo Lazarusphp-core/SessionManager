@@ -72,6 +72,16 @@ $session->password = "Test124";
 
 The fowllowing snippet will simply replicate $_SESSION['username'] = "test";
 
+### Reading Created Sessions
+
+in order to access the sessions  this can simply be done by following the above method without assigning the value, the example below would output the value of the username.
+
+```php
+use Lazarusphp\SessionManager\Sessions;
+$session = new Sessions();
+echo $sessions->username;
+```
+
 ### Garbage Collection 
 Garbage collection is a built in function from php and is used to delete Generated Sessions which have expired, this can be done by using the session_gc function
 
