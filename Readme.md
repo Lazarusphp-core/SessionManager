@@ -94,7 +94,7 @@ $session->deleteSessions("username","email","password");
 // Delete All Sessions
 $sessions->deleteSessions();
 ```
-Be Aware that deleting all Sessions (Not Specifying Sessions) Will do a session_destroy() call and will also delete the entire session from the database whereas choosing the sessions will only remove the specific values from the database, keeping the session intact.
+Be Aware that deleting all Sessions (Not Specifying Sessions) Will do a session_destroy() call and will also delete the entire session from the database whereas choosing the sessions will only remove the specific values from the database, keeping the session intact. this will override anything currently set by the server.
 
 ### Timezone Management (development)
 if you wish to change the timezone for the session time  this can be done using the setTz() method by default this is set to Europe/London
@@ -105,7 +105,7 @@ $session = new Sessions();
 $session->setTz();
 ```
 
-by using the getTz() you will be able retrive the currently set timezone
+by using the getTz() you will be able retrieve the currently set timezone
 
 ```php
 use Lazarusphp\SessionManager\Sessions;
