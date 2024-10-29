@@ -74,3 +74,8 @@ $session = new Sessions();
 $session->setTable("newTableName");
 ```
 > Any Session names will automaitically be converted to lowercase upon submissions.
+
+
+### Notes
+
+> this class cannot currently be used as a standalone script
