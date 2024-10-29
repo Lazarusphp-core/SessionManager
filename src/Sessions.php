@@ -14,7 +14,6 @@ class Sessions extends Database
     public string $format = "y-m-d H:i:s";
     private $table = "sessions";
     public $date;
-    private $writer;
     
 
     // Magic Methods to control Sessions.
