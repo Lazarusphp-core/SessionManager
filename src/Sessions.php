@@ -89,7 +89,7 @@ class Sessions extends Database
             // Load session_start
             if (session_start()) {
                 // Set the cookie to keep session active between the database and the browser
-                setcookie(session_name(), session_id(), Date::toTimestamp($this->date), "/", "." . $_SERVER['HTTP_HOST']);
+                setcookie(session_name(), session_id(), Date::asTimestamp($this->date), "/", "." . $_SERVER['HTTP_HOST']);
             }
         }
     }
