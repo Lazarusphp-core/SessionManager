@@ -1,95 +1,44 @@
 # Lazarusphp Session Manager
-SessionManager from lazarusphp is a Work in progress Database Driven Session handler designed to give more control over user sessions.
+SessionManager from lazarusphp is a Work in progress Database Driven Session handler designed to giving easier access and control over Sessions.
 
-## Requirments.
-* Understanding of php.
-* Lazarusphp Database Manager Class
-* the Ability to install composer and understaning of how to use its commands.
+## Installing Sessions Manager
 
-## How to install?
-Installing this package is done using composers require method and is done like so. 
 ```
 composer require lazarusphp/sessionmanager
-
-composer dumpautoload -o
 ```
 
-## How to instantiate the Session manager ?
-In order to start the Session class you are required to instantiate the Session Handler this is done like so.
+## The Basics
+
+### Starting Session Manager.
+instantiating sessions is done by running the start sessions, The start session runs the session handler and varifies the status of a session. 
+
+once varified a session is started, be aware that all sessions are stored within a databse upon instantiation.
 
 ```php
-use LazarusPhp\SessionManager\Sessions;
-(new Sessions())->instantiate();
-```
-this can also be done by attaching a property name to the method like so
-
-```php
-use LazarusPhp\SessionManager\Sessions;
+use lazarusphp\SessionsManager\Sessions;
 $session = new Sessions();
-$session->instantiate();
-```
-the default Mysql table name for sessions is called sessions if you wish to change the database table name please add the value within the parenthesis
-
-lets use users_sessions as an example
-
-
-```php
-use LazarusPhp\SessionManager\Sessions;
-(new Sessions())->instantiate("users_sessions");
-```
-## Starting Sessions
-in order for sessions to be started and stored within the database a session must be started this can be done like so.
-```php
-use LazarusPhp\SessionManager\Sessions;
 $session->start();
 ```
-although session_start() would work, the start method checks and verifys the session status, once verified the session name and id will be stored within a cookie allowing an active connection when the browser is closed.
+
+### Creating and Viewing Sessions
+sessions can be created on the fly, this is done using the following code.
 
 ```php
-use LazarusPhp\SessionManager\Sessions;
-$session->start();
-```
-By default the Session expiry time is set to 1 days  this is stored in both the Database in a cookie itself, this cookie is mandatory to stop the browser from regenerating a fresh id everytime it reloads.
-
-Adding the number of days as shown below will change the expiry on in the database and cookie.
-
-```php
-use LazarusPhp\SessionManager\Sessions;
-$session->start(14);
-```
-
-### Assigning a session
-
-In order to create and assign a session this can be accomplished by doing one of two methods, the fist by using $_SESSION[] otherwise you can simply create an on the fly method like so.
-
-```php
-use Lazarusphp\SessionsManager\Sessions
+use lazarusphp\SessionsManager\Sessions;
 $session = new Sessions();
-$session->username = "test";
-$session->email = "Email@email.com";
-$session->password = "Test124";
+$session->username = "jack";
+$session->dob = "03/12/1975";
 ```
 
-The fowllowing snippet will simply replicate $_SESSION['username'] = "test";
-
-### Reading Created Sessions
-
-in order to access the sessions  this can simply be done by following the above method without assigning the value, the example below would output the value of the username.
+in order to view the newly created sessions simply call the property without assigning a value.
 
 ```php
-use Lazarusphp\SessionManager\Sessions;
+use lazarusphp\SessionsManager\Sessions;
 $session = new Sessions();
-echo $sessions->username;
+echo "Hello " . $session->username;
 ```
 
-### Garbage Collection 
-Garbage collection is a built in function from php and is used to delete Generated Sessions which have expired, this can be done by using the session_gc function
-
-```php
-session_gc();
-```
-
-once called the script will go through all the sessions and will delete any stale records which  hold an expiry set before the current timestamp.
+## Extra Session Options
 
 ### Deleting Sessions
 the Session manager has the ability to remove individual Sessions or can remove them all as a whole by using the deleteSessions() method;
@@ -106,21 +55,22 @@ $sessions->deleteSessions();
 ```
 Be Aware that deleting all Sessions (Not Specifying Sessions) Will do a session_destroy() call and will also delete the entire session from the database whereas choosing the sessions will only remove the specific values from the database, keeping the session intact. this will override anything currently set by the server.
 
-### Timezone Management (development)
-if you wish to change the timezone for the session time  this can be done using the setTz() method by default this is set to Europe/London
+
+### Garbage Collection 
+Garbage collection is a built in function from php and is used to delete Generated Sessions which have expired, this can be done by using the session_gc function
 
 ```php
-use Lazarusphp\SessionManager\Sessions;
-$session = new Sessions();
-$session->setTz();
+session_gc();
 ```
 
-by using the getTz() you will be able retrieve the currently set timezone
+once called the script will go through all the sessions and will delete any stale records which  hold an expiry set before the current timestamp.
+
+### Designating a different Table name.
+By Default the Database Table name is sessions, however this can be changed using the setTable() method like so
 
 ```php
-use Lazarusphp\SessionManager\Sessions;
+use LazaruysPhp\SessionsManager\Sessions;
 $session = new Sessions();
-$session->getTz();
+$session->setTable("newTableName");
 ```
-
-in the case of the above example this would return Europe/London
+> Any Session names will automaitically be converted to lowercase upon submissions.
