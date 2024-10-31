@@ -5,17 +5,18 @@ namespace LazarusPhp\SessionManager;
 use LazarusPhp\DatabaseManager\Database;
 use LazarusPhp\DateManager\Date;
 use PDO;
+use PDOException;
+use App\System\Classes\Injection\Container;
 
-class Sessions extends Database
+class Sessions
 {
-
 
     public int $expiry = 1;
     public string $format = "y-m-d H:i:s";
     private $table = "sessions";
-    public $date;
+    private $date;
+    private $database;
     
-
     // Magic Methods to control Sessions.
     public function __set($name, $value)
     {
@@ -39,8 +40,6 @@ class Sessions extends Database
     {
         unset($_SESSION[$name]);
     }
-    
-    // End Magic Methods
     
     // Assignment Properties
 
@@ -103,16 +102,18 @@ class Sessions extends Database
 
     public function read($sessionID) :mixed
     {
+        $container = new Container([QueryWriter::class]);
+        $stmt = $container->method("readQuery",$this->table,$sessionID);
+        // $stmt = $this->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
+        // ->One(PDO::FETCH_ASSOC);
 
-        $stmt = $this->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
-        ->One(PDO::FETCH_ASSOC);
         return $stmt ? $stmt["data"] : ""; 
     }
 
     public function write($sessionID, $data): bool
     {
-        $params =  [":sessionID"=>$sessionID,":data"=>$data,":expiry"=>$this->date->format($this->format)];
-        $this->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
+        $container = new Container([QueryWriter::class]);
+        $container->method("writeQuery",$sessionID,$data,$this->date,$this->format,$this->table);
         return true;
        
     }
@@ -124,22 +125,16 @@ class Sessions extends Database
 
     public function destroy($sessionID): bool
     {
-        $params = [":sessionID"=>$sessionID];
-        $this->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID",$params);
+        $container = new Container(["QueryWriter::class"]);
+        $container->method("destroyQuery",$sessionID,$this->table);
         return true;
     }
 
     public function gc()
     {
-        $expiry = Date::create("now");
-
-        try {
-            $params = [":expiry"=>$expiry];
-            $this->GenerateQuery("DELETE FROM sessions WHERE expiry  < :expiry",$params);
-        } catch (PDOException $e) {
-            throw new PDOException($e->getMessage() . $e->getCode());
-        }
-
+    
+        $container = new Container(["QueryWriter::class"]);
+        $container->method("gcQuery");
         unset($_COOKIE[session_name()]);
     }
     // End Session handler Methods
