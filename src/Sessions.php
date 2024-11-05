@@ -6,16 +6,14 @@ use LazarusPhp\DatabaseManager\Database;
 use LazarusPhp\DateManager\Date;
 use PDO;
 use PDOException;
-use App\System\Classes\Injection\Container;
 
-class Sessions
+class Sessions extends Database
 {
 
-    public int $expiry = 1;
+    public int $expiry = 7;
     public string $format = "y-m-d H:i:s";
     private $table = "sessions";
     private $date;
-    private $database;
     
     // Magic Methods to control Sessions.
     public function __set($name, $value)
@@ -62,9 +60,16 @@ class Sessions
     // End Assignment Properties
     
     // Generate Session handler
-    
-    private function generateSession():void
+
+    private function currentDate() {
+        $this->date = Date::withAddedTime("now","P".$this->expiry."D");
+    }
+
+
+    public function instantiate():void
     {
+        $this->currentDate();
+        // Start Session Apart from  Creating it within the database no data will be stored.
         session_set_save_handler(
             [$this,"open"],
             [$this,"close"],
@@ -77,11 +82,7 @@ class Sessions
 
     public function start(): void
     {
-        $this->date = Date::withAddedTime("now","P".$this->expiry."D");
-        // Include the sessionHandler
-        $this->generateSession();
-        // End Session Handler
-
+        $this->currentDate();
         // Detect Status of session
         if (session_status() !== PHP_SESSION_ACTIVE) {
             // Load session_start
@@ -92,50 +93,56 @@ class Sessions
         }
     }
 
-    
-    // Session Handler Methods;
-    public function open():bool
+    public function open()
     {
        return true;
     }
 
-
-    public function read($sessionID) :mixed
+    
+    // Session Handler Methods;
+    public function read($sessionID) :string
     {
-        $container = new Container([QueryWriter::class]);
-        $stmt = $container->method("readQuery",$this->table,$sessionID);
-        // $stmt = $this->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
-        // ->One(PDO::FETCH_ASSOC);
-
+        
+        // $this->mysid = session_id();
+        $stmt = $this->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
+        ->One(PDO::FETCH_ASSOC);
         return $stmt ? $stmt["data"] : ""; 
     }
 
     public function write($sessionID, $data): bool
     {
-        $container = new Container([QueryWriter::class]);
-        $container->method("writeQuery",$sessionID,$data,$this->date,$this->format,$this->table);
+        $date = $this->date->format($this->format);
+        $params =  [":sessionID"=>session_id(),":data"=>$data,":expiry"=>$date];
+        $this->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
         return true;
        
     }
 
     public function close(): bool
     {
+
+        // $this->CloseDb();
         return true;
     }
 
-    public function destroy($sessionID): bool
+    public function destroy($sessionID=null): bool
     {
-        $container = new Container(["QueryWriter::class"]);
-        $container->method("destroyQuery",$sessionID,$this->table);
+        $params = [":sessionID"=>session_id()];
+        $this->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID",$params);
         return true;
+    
+   
     }
 
     public function gc()
     {
-    
-        $container = new Container(["QueryWriter::class"]);
-        $container->method("gcQuery");
-        unset($_COOKIE[session_name()]);
+        $expiry = $this->date->AddDate("now")->format("Y-m-d");
+
+        try {
+            $params = [":expiry"=>$expiry];
+            $this->GenerateQuery("DELETE FROM sessions WHERE expiry  < :expiry",$params);
+        } catch (PDOException $e) {
+            throw new PDOException($e->getMessage() . $e->getCode());
+        }
     }
-    // End Session handler Methods
 }
