@@ -1,19 +1,17 @@
 <?php
 
 namespace LazarusPhp\SessionManager;
-
-use LazarusPhp\DatabaseManager\Database;
 use LazarusPhp\DateManager\Date;
+use LazarusPhp\SessionManager\Interfaces\SessionControl;
+use LazarusPhp\SessionManager\SessionWriter;
 use PDO;
 use PDOException;
 
-class Sessions extends Database
+class Sessions
 {
 
-    public int $expiry = 7;
-    public string $format = "y-m-d H:i:s";
-    private $table = "sessions";
-    private $date;
+    private SessionControl $sessionControl;
+
     
     // Magic Methods to control Sessions.
     public function __set($name, $value)
@@ -38,37 +36,40 @@ class Sessions extends Database
     {
         unset($_SESSION[$name]);
     }
-    
-    // Assignment Properties
 
-    public function setExpiry(int $expiry):void
-    {
-        $this->expiry = $expiry;
-    }
-
-    public function setFormat(string $format):void
-    {
-        $this->format = $format;
-    }
-
-    public function setTable($table)
-    {
-        $this->table = $table;
-    }
 
 
     // End Assignment Properties
+
+    // Constructor and Destructors
+
+
+    public function __construct(array $classname = [SessionWriter::class],$sessionName=null)
+        {
+            $sessionName = $sessionName ?? ""; 
     
-    // Generate Session handler
+            if(is_array($classname))
+            {
+                if(class_exists($classname[0]))
+                {
+                    $this->sessionControl = new $classname[0]($sessionName);
+                }
+                else
+                {
+                    trigger_error("CLass Not Found");
+                }
+            }
+            else
+            {
+                trigger_error("The Requsted clsss is not in an array format")
+            }
+        }
+    
 
-    private function currentDate() {
-        $this->date = Date::withAddedTime("now","P".$this->expiry."D");
-    }
 
-
-    public function instantiate():void
+    public function init():void
     {
-        $this->currentDate();
+
         // Start Session Apart from  Creating it within the database no data will be stored.
         session_set_save_handler(
             [$this,"open"],
@@ -78,45 +79,39 @@ class Sessions extends Database
             [$this,"destroy"],
             [$this,"gc"],
         );
-    }
 
-    public function start(): void
-    {
-        $this->currentDate();
-        // Detect Status of session
         if (session_status() !== PHP_SESSION_ACTIVE) {
             // Load session_start
             if (session_start()) {
                 // Set the cookie to keep session active between the database and the browser
-                setcookie(session_name(), session_id(), Date::asTimestamp($this->date), "/", "." . $_SERVER['HTTP_HOST']);
+                $this->sessionControl->setcookie();
             }
         }
     }
+ 
 
     public function open()
     {
        return true;
     }
 
-    
     // Session Handler Methods;
     public function read($sessionID) :string
     {
         
         // $this->mysid = session_id();
-        $stmt = $this->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
-        ->One(PDO::FETCH_ASSOC);
+        $stmt = $this->sessionControl->readQuery($sessionID);
         return $stmt ? $stmt["data"] : ""; 
     }
 
     public function write($sessionID, $data): bool
     {
-        $date = $this->date->format($this->format);
-        $params =  [":sessionID"=>session_id(),":data"=>$data,":expiry"=>$date];
-        $this->GenerateQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
+        if($this->sessionControl->writeQuery($sessionID,$data,$this->date,$this->format));
         return true;
        
     }
+
+
 
     public function close(): bool
     {
@@ -127,22 +122,20 @@ class Sessions extends Database
 
     public function destroy($sessionID=null): bool
     {
-        $params = [":sessionID"=>session_id()];
-        $this->GenerateQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID",$params);
-        return true;
+       if($this->sessionControl->destroyQuery($sessionID))
+       {
+         return true;
+       }
+       else
+       {
+        trigger_error("Failed to destroy Session");
+       }
     
    
     }
 
     public function gc()
     {
-        $expiry = $this->date->AddDate("now")->format("Y-m-d");
-
-        try {
-            $params = [":expiry"=>$expiry];
-            $this->GenerateQuery("DELETE FROM sessions WHERE expiry  < :expiry",$params);
-        } catch (PDOException $e) {
-            throw new PDOException($e->getMessage() . $e->getCode());
-        }
+        return $this->sessionControl->gcQuery($this->date);
     }
 }
