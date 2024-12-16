@@ -7,10 +7,16 @@ use LazarusPhp\SessionManager\SessionWriter;
 use PDO;
 use PDOException;
 
+use function PHPSTORM_META\elementType;
+
 class Sessions
 {
 
+
     private SessionControl $sessionControl;
+    private $config;
+    private $init = false;
+    private $customboot;
 
     
     // Magic Methods to control Sessions.
@@ -44,32 +50,44 @@ class Sessions
     // Constructor and Destructors
 
 
-    public function __construct(array $classname = [SessionWriter::class],$sessionName=null)
+    public function __construct($customboot = false)
         {
-            $sessionName = $sessionName ?? ""; 
-    
-            if(is_array($classname))
+            if($customboot === true)
             {
-                if(class_exists($classname[0]))
-                {
-                    $this->sessionControl = new $classname[0]($sessionName);
-                }
-                else
-                {
-                    trigger_error("CLass Not Found");
-                }
+                $this->customboot = true;
             }
             else
             {
-                trigger_error("The Requsted clsss is not in an array format")
+                $this->customboot = false;
             }
         }
     
 
 
-    public function init():void
+    public function init(array $classname,$config=null):void
     {
+        
+        // Detect if the class exists
+        $this->config["customboot"] = false;
+        (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null; 
+       
 
+        if(is_array($classname))
+        {
+            if(class_exists($classname[0]))
+            {
+                $this->sessionControl = new $classname[0]($this->config);
+            }
+            else
+            {
+                trigger_error("CLass Not Found");
+            }
+        }
+        else
+        {
+            trigger_error("The Requsted clsss is not in an array format");
+        }
+        
         // Start Session Apart from  Creating it within the database no data will be stored.
         session_set_save_handler(
             [$this,"open"],
@@ -79,14 +97,18 @@ class Sessions
             [$this,"destroy"],
             [$this,"gc"],
         );
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            // Load session_start
-            if (session_start()) {
-                // Set the cookie to keep session active between the database and the browser
-                $this->sessionControl->setcookie();
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                // Load session_start
+                if (!session_start()) {
+                    trigger_error("Session Failed to start");
+                }
             }
-        }
+
+            if(is_bool($this->customboot) && $this->customboot === true)
+            {
+                $this->sessionControl->customBoot();
+            }
+       
     }
  
 
