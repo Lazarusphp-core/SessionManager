@@ -1,1 +1,0 @@
-### Session Class Query Writer;
