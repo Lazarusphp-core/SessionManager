@@ -1,5 +1,28 @@
 # Lazarusphp Session Manager
-SessionManager from lazarusphp is a Work in progress Database Driven Session handler designed to giving easier access and control over Sessions.
+
+#### Index#
+
+    
+* [Whats new ]
+* [What is the Session manager](#what-is-the-session-manager)
+* [Installing the Session Manageer](#installing-sessions-manager)
+* [Starting the Session manager](#starting-session-manager)
+* [The CustomBoot Flag](#the-customboot-flag)
+* [The Session Writer](#the-session-writer)
+* [Injecting Parameters  into Session Writer](#injecting-parameters-into-sessionwriter)    
+* [Creating and Viewing Sessions](#creating-and-viewing-sessions)
+* [Deleting Sessions](#deleting-sessions)
+* [Garabage Collection](#garbage-collection)
+
+
+## Whats new?
+
+* New Instantiation Method 
+* Code Clean up
+* injegration of SessionWriter classes
+
+## What is the session manager.
+The Session manager is a Database driven
 
 ## Installing Sessions Manager
 
@@ -10,15 +33,48 @@ composer require lazarusphp/sessionmanager
 ## The Basics
 
 ### Starting Session Manager.
-instantiating sessions is done by running the start sessions, The start session runs the session handler and varifies the status of a session. 
+Instantiating sessions is done by creating a new first time instantiation of the class and the init() method the first time instantiation utilises 3 parameters one is required and two are  optional.
 
-once varified a session is started, be aware that all sessions are stored within a databse upon instantiation.
+#### the customBoot flag 
+ enabling the customboot flag will give the ability to inject external code into the init() method this code is injected using a SessionWriter class 
+
+leaving the new instantiation blank will default the customboot flag to false and will just start the session as normal.
 
 ```php
-use lazarusphp\SessionsManager\Sessions;
-$session = new Sessions();
-$session->start();
+// Enabling  customboot
+$session = new sessions(true)
 ```
+
+#### The Session Writer
+
+the Session Writer class allows the ability to pass a custom set of database commands to the session class, this is a required component of the init method and eliminates te need to modify the Session class itself when installed.
+
+the sessionWriter:: class i injected into the init() method like so
+
+```php
+// customboot does not have to be enabled with to work with init()
+$session = new Sessions(true);
+$session->init([SessionWriter::class]);
+```
+
+#### Injecting parameters into SessionWriter
+
+similar to the option of injecting code into the Sessions Class the init method provide the ability to pass array data into the Session Writers constructor. this allow custom data to be manipulated on the fly from outside of the Session Writer.
+
+```php
+// customboot does not have to be enabled with to work with init()
+$session = new Sessions(true);
+$session->init([SessionWriter::class],[
+    "table"=>"sessions",
+    "expiry"=>7,
+    "date_format"=>"y-m-d h:i:s",
+]);
+```
+upon entering this data into the Session Writer it can be used and manipulated as needed.
+
+[Click here]() for how to use Session Writers.
+
+depending on personal coding preferences using customboot and init  should only need to be called once. it is required that a database connection should be established before calling any session classes.
 
 ### Creating and Viewing Sessions
 sessions can be created on the fly, this is done using the following code.
@@ -65,17 +121,3 @@ session_gc();
 
 once called the script will go through all the sessions and will delete any stale records which  hold an expiry set before the current timestamp.
 
-### Designating a different Table name.
-By Default the Database Table name is sessions, however this can be changed using the setTable() method like so
-
-```php
-use LazaruysPhp\SessionsManager\Sessions;
-$session = new Sessions();
-$session->setTable("newTableName");
-```
-> Any Session names will automaitically be converted to lowercase upon submissions.
-
-
-### Notes
-
-> this class cannot currently be used as a standalone script
