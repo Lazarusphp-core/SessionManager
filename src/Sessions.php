@@ -61,60 +61,52 @@ class Sessions
                 $this->customboot = false;
             }
         }
-    
 
 
-    public function init(array $classname,$config=null):void
+
+    public function init(array $classname, $config = null): void
     {
-        
+
         // Detect if the class exists
         $this->config["customboot"] = false;
-        (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null; 
-       
+        (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null;
 
-        if(is_array($classname))
-        {
-            if(class_exists($classname[0]))
-            {
+
+        if (is_array($classname)) {
+            if (class_exists($classname[0])) {
                 $this->sessionControl = new $classname[0]($this->config);
-            }
-            else
-            {
+            } else {
                 trigger_error("CLass Not Found");
             }
-        }
-        else
-        {
+        } else {
             trigger_error("The Requsted clsss is not in an array format");
         }
-        
+
         // Start Session Apart from  Creating it within the database no data will be stored.
         session_set_save_handler(
-            [$this,"open"],
-            [$this,"close"],
-            [$this,"read"],
-            [$this,"write"],
-            [$this,"destroy"],
-            [$this,"gc"],
+            [$this, "open"],
+            [$this, "close"],
+            [$this, "read"],
+            [$this, "write"],
+            [$this, "destroy"],
+            [$this, "gc"],
         );
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                // Load session_start
-                if (!session_start()) {
-                    trigger_error("Session Failed to start");
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            // Load session_start
+            if (session_start()) {
+                if (is_bool($this->customboot) && $this->customboot === true) {
+                    $this->sessionControl->customBoot();
                 }
             }
+        }
 
-            if(is_bool($this->customboot) && $this->customboot === true)
-            {
-                $this->sessionControl->customBoot();
-            }
-       
+      
     }
  
 
-    public function open()
+    public function open():bool
     {
-       return true;
+        return $this->sessionControl->openQuery();
     }
 
     // Session Handler Methods;
@@ -137,9 +129,7 @@ class Sessions
 
     public function close(): bool
     {
-
-        // $this->CloseDb();
-        return true;
+        return $this->sessionControl->closeQuery();
     }
 
     public function destroy($sessionID=null): bool

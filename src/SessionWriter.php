@@ -8,56 +8,60 @@ use PDO;
 class SessionWriter implements SessionControl
 {
 
-    private $table;
+    private $config;
     private $date;
-    private $expiry;
-    private $format;
 
 
-    public function __construct($sessionName=null)
+    public function __construct(array $config=null)
     {
-        echo $sessionName;
-   
-        $this->DateConfig();
+        $this->config = $config ?? null;
     }
 
-    public function DateConfig()
+    public function customBoot():void
     {
-        $this->expiry = 21;
-        $this->table = "sessions";
-        $this->format = "y-m-d h:i:s";
+        $this->setCookie();
     }
 
     public function setCookie() :bool
     {
-        return  setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->expiry."D")), "/", "." . $_SERVER['HTTP_HOST']);
+        return  setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->config["expiry"]."D")), "/", "." . $_SERVER['HTTP_HOST']);
             
     }
-    public function readQuery($sessionID)
+
+    public function openQuery():bool
+    {
+        return true;
+    }
+
+    public function closeQuery():bool
+    {
+        return true;
+    }
+    public function readQuery($sessionID):mixed
     {
         $query = new QueryBuilder();
-        $stmt = $query->sql("SELECT * FROM ".$this->table." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
+        $stmt = $query->sql("SELECT * FROM ".$this->config["table"]." WHERE session_id = :sessionID",[":sessionID"=>$sessionID])
         ->one(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
     public function writeQuery($sessionID,$data):bool
     {
-        $date = Date::withAddedTime("now","P".$this->expiry."D")->format($this->format);
+        $date = Date::withAddedTime("now","P".$this->config["expiry"]."D")->format($this->config["format"]);
         $params =  [":sessionID"=>$sessionID,":data"=>$data,":expiry"=>$date];
         $query = new QueryBuilder();
-        $query->asQuery("REPLACE INTO " . $this->table . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
+        $query->asQuery("REPLACE INTO " . $this->config["table"] . " (session_id,data,expiry) VALUES(:sessionID,:data,:expiry)",$params);
         return true;
     } 
     public function destroyQuery($sessionID): bool
     {
         $query = new QueryBuilder();
         $params = [":sessionID"=>$sessionID];
-        $query->asQuery("DELETE FROM " . $this->table . " WHERE session_id=:sessionID",$params);
+        $query->asQuery("DELETE FROM " . $this->config["table"] . " WHERE session_id=:sessionID",$params);
         return true;
     }
 
-    public function gcQuery()
+    public function gcQuery():void
     {
         $expiry = Date::create("now");
         $expiry = $expiry->format("y-m-d h:i:s");
