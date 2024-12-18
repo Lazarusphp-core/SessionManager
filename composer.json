@@ -13,8 +13,5 @@
             "name": "martin bamber"
         }
     ],
-    "minimum-stability": "stable",
-    "require": {
-        "lazarusphp/databasemanager": "^1.0.1"  
-    }
+    "minimum-stability": "stable"
 }
