@@ -3,11 +3,10 @@
 namespace LazarusPhp\SessionManager;
 use LazarusPhp\DateManager\Date;
 use LazarusPhp\SessionManager\Interfaces\SessionControl;
-use LazarusPhp\SessionManager\SessionWriter;
+use App\System\Writers\SessionWriter;
+use SessionHandler;
 use PDO;
 use PDOException;
-
-use function PHPSTORM_META\elementType;
 
 class Sessions
 {
@@ -64,34 +63,18 @@ class Sessions
 
 
 
-    public function init(array $classname, $config = null): void
+    public function init(): void
     {
 
         // Detect if the class exists
         $this->config["customboot"] = false;
-        (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null;
-
-
-        if (is_array($classname)) {
-            if (class_exists($classname[0])) {
-                $this->sessionControl = new $classname[0]($this->config);
-            } else {
-                trigger_error("CLass Not Found");
-            }
-        } else {
-            trigger_error("The Requsted clsss is not in an array format");
-        }
+        // (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null;
 
         // Start Session Apart from  Creating it within the database no data will be stored.
-        session_set_save_handler(
-            [$this, "open"],
-            [$this, "close"],
-            [$this, "read"],
-            [$this, "write"],
-            [$this, "destroy"],
-            [$this, "gc"],
-        );
+        
+        $handle = new SessionWriter();
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_save_handler($handle);
             // Load session_start
             if (session_start()) {
                 if (is_bool($this->customboot) && $this->customboot === true) {
@@ -99,55 +82,9 @@ class Sessions
                 }
             }
         }
+       
 
       
     }
  
-
-    public function open():bool
-    {
-        return $this->sessionControl->openQuery();
-    }
-
-    // Session Handler Methods;
-    public function read($sessionID) :string
-    {
-        
-        // $this->mysid = session_id();
-        $stmt = $this->sessionControl->readQuery($sessionID);
-        return $stmt ? $stmt["data"] : ""; 
-    }
-
-    public function write($sessionID, $data): bool
-    {
-        if($this->sessionControl->writeQuery($sessionID,$data,$this->date,$this->format));
-        return true;
-       
-    }
-
-
-
-    public function close(): bool
-    {
-        return $this->sessionControl->closeQuery();
-    }
-
-    public function destroy($sessionID=null): bool
-    {
-       if($this->sessionControl->destroyQuery($sessionID))
-       {
-         return true;
-       }
-       else
-       {
-        trigger_error("Failed to destroy Session");
-       }
-    
-   
-    }
-
-    public function gc()
-    {
-        return $this->sessionControl->gcQuery($this->date);
-    }
 }
