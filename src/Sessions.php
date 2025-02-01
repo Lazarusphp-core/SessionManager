@@ -13,7 +13,7 @@ class Sessions
 
 
     private SessionControl $sessionControl;
-    private $config = [];
+    private $config;
     private $init = false;
 
 
@@ -30,6 +30,10 @@ class Sessions
         {
             return $_SESSION[$name];
         }
+        else
+        {
+            trigger_error("Undefined property: $name");
+        }   
     }
 
     public function __isset($name)
@@ -42,14 +46,14 @@ class Sessions
         unset($_SESSION[$name]);
     }
 
-    public function  setConfig($config)
+    public function setConfig($config)
     {
         foreach($config as $key => $value)
         {
-            $this->config[$key] = $value;
+            $config[$key] = $value;
         }
 
-        return (object) $this->config;
+        return (object) $config;
     }
 
 
@@ -57,19 +61,17 @@ class Sessions
 
     public function init(array $classname,array $config = []): void
     {
-
-        $config = $this->setConfig($config);
+        $this->config = $this->setConfig($config);
         if(is_array($classname))
         {
             if(class_exists($classname[0]))
             {
-                $handle = new $classname[0]();
+                $handle = new $classname[0](["days"=>$this->config->days,"table"=>$this->config->table]);
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     session_set_save_handler($handle);
                     // Load session_start
                     if (session_start()) {
-                        $days = 7;
-                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$days."D")), "/", "." . $_SERVER['HTTP_HOST']);
+                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->config->days."D")), "/", "." . $_SERVER['HTTP_HOST']);
                     }
                 }
             }
