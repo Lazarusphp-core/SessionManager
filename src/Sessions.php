@@ -13,9 +13,9 @@ class Sessions
 
 
     private SessionControl $sessionControl;
-    private $config;
+    private $config = [];
     private $init = false;
-    private $customboot;
+
 
     
     // Magic Methods to control Sessions.
@@ -42,39 +42,25 @@ class Sessions
         unset($_SESSION[$name]);
     }
 
+    public function  setConfig($config)
+    {
+        foreach($config as $key => $value)
+        {
+            $this->config[$key] = $value;
+        }
+
+        return (object) $this->config;
+    }
 
 
     // End Assignment Properties
 
-    // Constructor and Destructors
-
-
-    public function __construct($customboot = false)
-        {
-            if($customboot === true)
-            {
-                $this->customboot = true;
-            }
-            else
-            {
-                $this->customboot = false;
-            }
-        }
-
-
-
-    public function init(array $classname): void
+    public function init(array $classname,array $config = []): void
     {
 
-        // Detect if the class exists
-        $this->config["customboot"] = false;
-        // (!is_null($config) && is_array($config)) ? $this->config = $config : $this->config = null;
-
-        // Start Session Apart from  Creating it within the database no data will be stored.
-        
+        $config = $this->setConfig($config);
         if(is_array($classname))
         {
-
             if(class_exists($classname[0]))
             {
                 $handle = new $classname[0]();
