@@ -82,9 +82,8 @@ class Sessions
                     session_set_save_handler($handle);
                     // Load session_start
                     if (session_start()) {
-                        if (is_bool($this->customboot) && $this->customboot === true) {
-                            $this->sessionControl->customBoot();
-                        }
+                        $days = 7;
+                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$days."D")), "/", "." . $_SERVER['HTTP_HOST']);
                     }
                 }
             }
