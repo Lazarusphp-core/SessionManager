@@ -19,6 +19,10 @@
 * Code Clean up
 * injection of SessionWriter classes
 * Supports upto php version 8.4
+* optional Config values
+
+# Whats been removed
+* Custom boot flags
 
 ## What is the session manager.
 The Session manager is a Database driven Session handler, storing all session data within a database allowing for more control.
