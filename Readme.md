@@ -1,15 +1,13 @@
 # Lazarusphp Session Manager
 
-#### Index#
+#### Index 
 
-    
-* [Whats new ]
+
+* [Whats new](#whats-new)
 * [What is the Session manager](#what-is-the-session-manager)
 * [Installing the Session Manageer](#installing-sessions-manager)
-* [Starting the Session manager](#starting-session-manager)
-* [The CustomBoot Flag](#the-customboot-flag)
-* [The Session Writer](#the-session-writer)
-* [Injecting Parameters  into Session Writer](#injecting-parameters-into-sessionwriter)    
+
+
 * [Creating and Viewing Sessions](#creating-and-viewing-sessions)
 * [Deleting Sessions](#deleting-sessions)
 * [Garabage Collection](#garbage-collection)
@@ -19,7 +17,8 @@
 
 * New Instantiation Method 
 * Code Clean up
-* injegration of SessionWriter classes
+* injection of SessionWriter classes
+* Supports upto php version 8.4
 
 ## What is the session manager.
 The Session manager is a Database driven Session handler, storing all session data within a database allowing for more control.
@@ -29,9 +28,6 @@ The Session manager is a Database driven Session handler, storing all session da
 ```
 composer require lazarusphp/sessionmanager
 ```
-
-# Whats new
- * Supports upto php version 8.4
 
 
 ## The Basics
