@@ -71,6 +71,11 @@ Sessions::instantiate([SessionWriter::class],
 ]);
 ```
 
+### The Session Writer class.
+The Session Writer class is a custom class designed to hold Database query requests for the open, close, read, write, destroy and gc methods. these methods are a requirement as they implemenet the SessionHandlerInterface interface.
+
+The SessionWriter class can be named anything and located anywhere on the File structure as long as it is injected into the Session classes Instantiate method.
+
 ### Creating and Viewing Sessions
 sessions can be created on the fly, this is done using the following code.
 
