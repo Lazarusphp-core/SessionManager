@@ -10,9 +10,6 @@ use PDOException;
 
 class Sessions
 {
-
-
-    private SessionControl $sessionControl;
     private $config;
     private $init = false;
 
@@ -59,8 +56,16 @@ class Sessions
 
     // End Assignment Properties
 
-    public function init(array $classname,array $config = []): void
+    public function instantiate(array $classname,array $config = []): void
     {
+        // Set a Default if the config value is empty
+        if(count($config) === 0)
+        {
+            $this->congfig["days"] = 7;
+            $this->config["table"] = "sessions";
+        }
+    
+        // Return config values
         $this->config = $this->setConfig($config);
         if(is_array($classname))
         {
