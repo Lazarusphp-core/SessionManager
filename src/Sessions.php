@@ -45,12 +45,23 @@ class Sessions
 
     public function setConfig($config)
     {
-        foreach($config as $key => $value)
+        
+        if(count($config) === 0)
         {
-            $config[$key] = $value;
-        }
+            $config = ["days" => 7,"table" => "sessions"];
 
-        return (object) $config;
+        }
+        else
+        {
+            foreach($config as $key => $value)
+    {
+             if(!array_key_exists($key,$config)){
+                $config[$key] = $value;
+                }
+            }
+        }
+            return $config;
+        // return (object) $config;
     }
 
 
@@ -58,25 +69,20 @@ class Sessions
 
     public function instantiate(array $classname,array $config = []): void
     {
-        // Set a Default if the config value is empty
-        if(count($config) === 0)
-        {
-            $this->congfig["days"] = 7;
-            $this->config["table"] = "sessions";
-        }
-    
-        // Return config values
+     
         $this->config = $this->setConfig($config);
+        // Return config values
         if(is_array($classname))
         {
             if(class_exists($classname[0]))
             {
-                $handle = new $classname[0](["days"=>$this->config->days,"table"=>$this->config->table]);
+                $handle = new $classname[0]();
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     session_set_save_handler($handle);
+                    $handle->passConfig($this->config);
                     // Load session_start
                     if (session_start()) {
-                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->config->days."D")), "/", "." . $_SERVER['HTTP_HOST']);
+                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
                     }
                 }
             }
@@ -88,9 +94,6 @@ class Sessions
         else{
             throw new \Exception("Session Handler must be an array");
         }
-      
-       
-
       
     }
 
