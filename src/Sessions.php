@@ -93,5 +93,16 @@ class Sessions
 
       
     }
- 
+
+    public function destroySessions(...$args)
+    {
+        foreach($args as $arg)
+        {
+            unset($_SESSION[$arg]);
+        }
+        else
+        {
+            session_destroy();
+        }
+    }
 }
