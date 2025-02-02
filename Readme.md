@@ -22,7 +22,7 @@
 * injegration of SessionWriter classes
 
 ## What is the session manager.
-The Session manager is a Database driven
+The Session manager is a Database driven Session handler, storing all session data within a database allowing for more control.
 
 ## Installing Sessions Manager
 
@@ -30,55 +30,51 @@ The Session manager is a Database driven
 composer require lazarusphp/sessionmanager
 ```
 
+# Whats new
+ * Supports upto php version 8.4
+
+
 ## The Basics
+the Session manager can be called at anytime within a website, however a first time instantiation to connect to a database is required.
 
-### Starting Session Manager.
-Instantiating sessions is done by creating a new first time instantiation of the class and the init() method the first time instantiation utilises 3 parameters one is required and two are  optional.
+### Instantiation
 
-#### the customBoot flag 
- enabling the customboot flag will give the ability to inject external code into the init() method this code is injected using a SessionWriter class 
-
-leaving the new instantiation blank will default the customboot flag to false and will just start the session as normal.
+This script is a standalone script that demonstrates how to instantiate a session manager using the SessionsManager class from the LazarusPhp namespace. It requires the SessionWriter class to work correctly. This setup allows users to customize their own database preferences for session management.
 
 ```php
-// Enabling  customboot
-$session = new sessions(true)
+use LazarusPhp\SessionsManager\Sessions;
+$session = new Sessions();
+$sessions->instantiate([SessionWriter::class]);
 ```
 
-#### The Session Writer
-
-the Session Writer class allows the ability to pass a custom set of database commands to the session class, this is a required component of the init method and eliminates te need to modify the Session class itself when installed.
-
-the sessionWriter:: class i injected into the init() method like so
+optionally a second parameter $config can be added into the instantiate method, this is a set of key pair arrays  and can be done like so
 
 ```php
-// customboot does not have to be enabled with to work with init()
-$session = new Sessions(true);
-$session->init([SessionWriter::class]);
-```
-
-#### Injecting parameters into SessionWriter
-
-similar to the option of injecting code into the Sessions Class the init method provide the ability to pass array data into the Session Writers constructor. this allow custom data to be manipulated on the fly from outside of the Session Writer.
-
-```php
-// customboot does not have to be enabled with to work with init()
-$session = new Sessions(true);
-$session->init([SessionWriter::class],[
-    "table"=>"sessions",
-    "expiry"=>7,
-    "date_format"=>"y-m-d h:i:s",
+use LazarusPhp\SessionsManager\Sessions;
+$session = new Sessions();
+$sessions->instantiate([SessionWriter::class],
+[
+    "table"=>"Sessions",
+    "days"=>7
 ]);
 ```
-upon entering this data into the Session Writer it can be used and manipulated as needed.
 
-[Click here]() for how to use Session Writers.
+SessionManager class also offers a Factory Class option giving a quicker more effient method to call and instantiate the class.
 
-depending on personal coding preferences using customboot and init  should only need to be called once. it is required that a database connection should be established before calling any session classes.
+```php
+use LazarusPhp\SessionsManager\SessionsFactory as Sessions;
+
+Sessions::instantiate([SessionWriter::class],
+[
+    "table"=>"Sessions",
+    "days"=>7
+]);
+```
 
 ### Creating and Viewing Sessions
 sessions can be created on the fly, this is done using the following code.
 
+this can be done using the Factory class method as well.
 ```php
 use lazarusphp\SessionsManager\Sessions;
 $session = new Sessions();
@@ -86,7 +82,15 @@ $session->username = "jack";
 $session->dob = "03/12/1975";
 ```
 
+```php
+use lazarusphp\SessionsManager\SessionsFactory as Sessions;
+Sessions::set("username","jack");
+Sessions::set("dob","03/12/1975");
+```
+
 in order to view the newly created sessions simply call the property without assigning a value.
+
+like settings  session this can also be accomplished using the SessionsFactory class
 
 ```php
 use lazarusphp\SessionsManager\Sessions;
@@ -94,9 +98,17 @@ $session = new Sessions();
 echo "Hello " . $session->username;
 ```
 
+```php
+use lazarusphp\SessionsManager\SessionsFactory as Sessions;
+echo "Hello" . Sessions::get("username");
+```
+
 ## Extra Session Options
 
 ### Deleting Sessions
+
+> this Documentation is still available but the function has been removed temporarily
+
 the Session manager has the ability to remove individual Sessions or can remove them all as a whole by using the deleteSessions() method;
 
 ```php
