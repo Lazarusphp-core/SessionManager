@@ -25,9 +25,9 @@ class SessionsFactory
         return $session->$key;
     }
 
-    public static function destroy($key)
+    public static function destroySessions(...$args)
     {
         $session = new Sessions();
-        unset($session->$key);
+        $session->destroySessions($args);
     }
 }
