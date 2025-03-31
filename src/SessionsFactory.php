@@ -13,16 +13,15 @@ class SessionsFactory
         return self::create()->instantiate($classname, $config);
     }
 
-    public static function set($key,$value)
+    public static function set(string $key,int|string $value)
     {
         
         self::create()->$key = $value;
     }
 
-    public static function get($key)
+    public static function get(string $key)
     {
-        
-        return self::create()->$session->$key;
+        return self::create()->$key;
     }
 
     public static function destroySessions(...$args)
