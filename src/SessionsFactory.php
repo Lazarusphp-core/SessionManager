@@ -15,19 +15,18 @@ class SessionsFactory
 
     public static function set($key,$value)
     {
-        $session = new Sessions();
-        $session->$key = $value;
+        
+        self::create()->$key = $value;
     }
 
     public static function get($key)
     {
-        $session = new Sessions();
-        return $session->$key;
+        
+        return self::create()->$session->$key;
     }
 
     public static function destroySessions(...$args)
     {
-        $session = new Sessions();
-        $session->destroySessions($args);
+        self::create()->destroySessions($args);
     }
 }
