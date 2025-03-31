@@ -16,12 +16,12 @@ class Sessions
 
     
     // Magic Methods to control Sessions.
-    public function __set($name, $value)
+    public function __set(string $name, string|int $value)
     {
         $_SESSION[$name] = $value;
     }
 
-    public function __get($name)
+    public function __get(string $name)
     {
         if(array_key_exists($name,$_SESSION))
         {
@@ -33,17 +33,17 @@ class Sessions
         }   
     }
 
-    public function __isset($name)
+    public function __isset(string $name)
     {
         return isset($_SESSION[$name]);
     }
 
-    public function __unset($name)
+    public function __unset(string $name)
     {
         unset($_SESSION[$name]);
     }
 
-    public function setConfig($config)
+    public function setConfig(array $config)
     {
         
         if(count($config) === 0)
