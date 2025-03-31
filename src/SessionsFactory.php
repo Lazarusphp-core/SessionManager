@@ -10,7 +10,7 @@ class SessionsFactory
 
     public static function instantiate(array $classname,array $config = [])
     {
-        return (new Sessions())->instantiate($classname, $config);
+        return self::create()->instantiate($classname, $config);
     }
 
     public static function set($key,$value)
