@@ -3,12 +3,14 @@
 namespace LazarusPhp\SessionManager;
 use LazarusPhp\DateManager\Date;
 use LazarusPhp\SessionManager\Interfaces\SessionControl;
+use LazarusPhp\SessionManager\CoreFiles\SessionCore;
 use App\System\Writers\SessionWriter;
+use Error;
 use SessionHandler;
 use PDO;
 use PDOException;
 
-class Sessions
+class Sessions extends SessionCore
 {
     private $config;
     private $init = false;
@@ -43,34 +45,12 @@ class Sessions
         unset($_SESSION[$name]);
     }
 
-    public function setConfig(array $config)
-    {
-        
-        if(count($config) === 0)
-        {
-            $config = ["days" => 7,"table" => "sessions"];
-
-        }
-        else
-        {
-            foreach($config as $key => $value)
-    {
-             if(!array_key_exists($key,$config)){
-                $config[$key] = $value;
-                }
-            }
-        }
-            return $config;
-        // return (object) $config;
-    }
-
-
     // End Assignment Properties
 
     public function instantiate(array $classname,array $config = []): void
     {
      
-        $this->config = $this->setConfig($config);
+        $config = $this->setConfig($config);
         // Return config values
         if(is_array($classname))
         {
@@ -79,10 +59,10 @@ class Sessions
                 $handle = new $classname[0]();
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     session_set_save_handler($handle);
-                    $handle->passConfig($this->config);
+                    $handle->passConfig($config);
                     // Load session_start
                     if (session_start()) {
-                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$this->config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
+                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
                     }
                 }
             }
