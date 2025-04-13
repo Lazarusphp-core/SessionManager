@@ -49,7 +49,8 @@ class Sessions extends SessionCore
 
     public function instantiate(array $classname,array $config = []): void
     {
-     
+      
+
         $config = $this->setConfig($config);
         // Return config values
         if(is_array($classname))
@@ -58,11 +59,23 @@ class Sessions extends SessionCore
             {
                 $handle = new $classname[0]();
                 if (session_status() !== PHP_SESSION_ACTIVE) {
+                
+                    // Set Cookie Params
+                    $params = session_set_cookie_params(
+                    [
+                        'path' => $config['path'] ?? '/',
+                        'domain' => $config['domain'] ?? $_SERVER['HTTP_HOST'],
+                        'secure' => $config['secure'] ?? isset($_SERVER['HTTPS']),
+                        'httponly' => $config['httponly'] ?? true,
+                        'samesite' => $config['samesite'] ?? $_SERVER['HTTP_HOST'],
+                    ]
+                    );
                     session_set_save_handler($handle);
                     $handle->passConfig($config);
                     // Load session_start
                     if (session_start()) {
                         setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
+                  
                     }
                 }
             }
@@ -74,7 +87,6 @@ class Sessions extends SessionCore
         else{
             throw new \Exception("Session Handler must be an array");
         }
-      
     }
 
     public function destroySessions(...$args)
