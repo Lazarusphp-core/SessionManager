@@ -61,7 +61,7 @@ class Sessions extends SessionCore
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                 
                     // Set Cookie Params
-                    $params = session_set_cookie_params(
+                    session_set_cookie_params(
                     [
                         'path' => $config['path'] ?? '/',
                         'domain' => $config['domain'] ?? $_SERVER['HTTP_HOST'],
