@@ -11,7 +11,7 @@ class SessionCore
     {
         $count = count($config);
         $keys = array_keys($config);
-        $supportedKeys= ["secure","days","table","lifetime","sameSite","httpOnly"];
+        $supportedKeys= ["secure","days","table","sameSite","httpOnly","domain","path"];
         
         if(count($config) >= 1)
         {
@@ -40,11 +40,6 @@ class SessionCore
         return $this->config;
     }
 
-    private function doCount($input,$value,?string $operator=null)
-    {
-        $operator = $operator ?? "=";
-        return (count($input) . $operator . $value) ? true : false;
-    }
     private function getUnsupportedKeys($keys,$supportedKeys)
     {
         $unsupported = array_diff($keys,$supportedKeys);
