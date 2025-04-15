@@ -21,6 +21,7 @@
 * Supports upto php version 8.4
 * optional Config values
 
+
 # Whats been removed
 * Custom boot flags
 
@@ -60,6 +61,19 @@ $sessions->instantiate([SessionWriter::class],
 ```
 
 SessionManager class also offers a Factory Class option giving a quicker more effient method to call and instantiate the class.
+
+optionally the second parameter also now supports Additional Values including 
+
+* path
+    * this sets the path in which the sessions will read from : leaving this out will default to / (all paths)
+* sameSite
+    * set wether the session is strict or lax
+* httpOnly
+    * when set to true http will only try and send http Requests.
+* secure
+    * forces the use of https
+* domain
+    * set the domain in which the sessions can be read from, by default domain is set to ".".$_SERVER['HTTP_HOST'] allowing all domains and subdomains to be utilise the sessions.
 
 ```php
 use LazarusPhp\SessionsManager\SessionsFactory as Sessions;
