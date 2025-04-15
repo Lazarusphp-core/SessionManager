@@ -64,19 +64,16 @@ class Sessions extends SessionCore
                     session_set_cookie_params(
                     [
                         'path' => $config['path'] ?? '/',
-                        'domain' => $config['domain'] ?? $_SERVER['HTTP_HOST'],
+                        'domain' => $config['domain'] ?? ".".$_SERVER['HTTP_HOST'],
                         'secure' => $config['secure'] ?? isset($_SERVER['HTTPS']),
                         'httponly' => $config['httponly'] ?? true,
-                        'samesite' => $config['samesite'] ?? $_SERVER['HTTP_HOST'],
-                    ]
-                    );
+                        'samesite' => $config['samesite'] ?? "lax"
+                ]);
                     session_set_save_handler($handle);
                     $handle->passConfig($config);
+                    setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
                     // Load session_start
-                    if (session_start()) {
-                        setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
-                  
-                    }
+                    session_start();
                 }
             }
             else
