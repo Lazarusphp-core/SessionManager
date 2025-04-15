@@ -52,13 +52,4 @@ class SessionCore
         }
     }
 
-    private function returnConfig(string $key,?string $altvalue=null)
-    {
-        if(isset($this->config[$key]))
-        {
-            $this->config[$key] = $altvalue ?? $this->config[$key];
-        }
-        return $this->config[$key];
-    }
-
 }
