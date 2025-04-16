@@ -86,7 +86,7 @@ class Sessions extends SessionCore
         }
     }
 
-    public function destroySessions(...$args)
+    public function deleteSessions(...$args)
     {
         if(count($args) === 0)
         {

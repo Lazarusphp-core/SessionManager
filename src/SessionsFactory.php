@@ -24,8 +24,8 @@ class SessionsFactory
         return self::create()->$key;
     }
 
-    public static function destroySessions(...$args)
+    public static function deleteSession(...$args)
     {
-        self::create()->destroySessions($args);
+        self::create()->deleteSessions($args);
     }
 }
