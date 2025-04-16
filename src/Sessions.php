@@ -60,15 +60,6 @@ class Sessions extends SessionCore
                 $handle = new $classname[0]();
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                 
-                    // Set Cookie Params
-                    session_set_cookie_params(
-                    [
-                        'path' => $config['path'] ?? '/',
-                        'domain' => $config['domain'] ?? ".".$_SERVER['HTTP_HOST'],
-                        'secure' => $config['secure'] ?? isset($_SERVER['HTTPS']),
-                        'httponly' => $config['httponly'] ?? true,
-                        'samesite' => $config['samesite'] ?? "lax"
-                ]);
                     session_set_save_handler($handle);
                     $handle->passConfig($config);
                     setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
