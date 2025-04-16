@@ -11,7 +11,7 @@ class SessionCore
     {
         $count = count($config);
         $keys = array_keys($config);
-        $supportedKeys= ["secure","days","table","sameSite","httpOnly","domain","path"];
+        $supportedKeys= ["days","table"];
         
         if(count($config) >= 1)
         {
