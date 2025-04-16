@@ -126,8 +126,6 @@ echo "Hello" . Sessions::get("username");
 
 ### Deleting Sessions
 
-> this Documentation is still available but the function has been removed temporarily
-
 the Session manager has the ability to remove individual Sessions or can remove them all as a whole by using the deleteSessions() method;
 
 ```php
