@@ -9,47 +9,29 @@ class SessionCore
 
     public function setConfig(array $config)
     {
-        $count = count($config);
-        $keys = array_keys($config);
-        $supportedKeys= ["days","table"];
-        
-        if(count($config) >= 1)
-        {
-           
-            $this->getUnsupportedKeys($keys,$supportedKeys);
+        $this->config = ["days" => 7, "table" => "sessions"];
 
-            if(count($this->errors) >= 1)
-            {
-            
-            }
-            else
-            {
-                foreach($config as $key => $value)
-                {
-                    
-                    if(!array_key_exists($key,$this->config)){
+        if (count($config) > 0) { {
+                foreach ($config as $key => $value) {
+                    if (array_key_exists($key, $this->config)) {
+                        // OverWrite the value
                         $this->config[$key] = $value;
-                        }
+                    }
                 }
+                // Merge
+            $this->config = array_merge($config,$this->config);
             }
-        }
-        else
-        {
-            $this->config = ["days" => 7,"table" => "sessions"];
         }
         return $this->config;
     }
 
-    private function getUnsupportedKeys($keys,$supportedKeys)
+    private function getUnsupportedKeys($keys, $supportedKeys)
     {
-        $unsupported = array_diff($keys,$supportedKeys);
-        if($unsupported)
-        {
-            foreach($unsupported as $unsupported)
-            {
+        $unsupported = array_diff($keys, $supportedKeys);
+        if ($unsupported) {
+            foreach ($unsupported as $unsupported) {
                 $this->errors[] = "Error Found with Key : $unsupported is not supported";
             }
         }
     }
-
 }

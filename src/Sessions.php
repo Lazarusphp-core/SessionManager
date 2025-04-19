@@ -12,6 +12,7 @@ use PDOException;
 
 class Sessions extends SessionCore
 {
+    
     private $config;
     private $init = false;
 
@@ -49,8 +50,6 @@ class Sessions extends SessionCore
 
     public function instantiate(array $classname,array $config = []): void
     {
-      
-
         $config = $this->setConfig($config);
         // Return config values
         if(is_array($classname))

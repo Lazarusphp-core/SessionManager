@@ -10,20 +10,19 @@ class SessionWriter Implements SessionHandlerInterface
 {
 
     private $config;
-    private $date;
 
-    public function passConfig(array $config)
+    public function passConfig(array $config,array $required=[])
     {
         $this->config = $config;
-        $required = ["days","table"];
-        if(is_array($config))
+        $required = !empty($required) ? $required : ["days","table"];
+        if(is_array($this->config))
         {
             foreach ($required as $key) {
-                if (!array_key_exists($key,$config)) {
+                if (!array_key_exists($key,$this->config)) {
                     throw new \InvalidArgumentException("Missing required config key: $key");
                 }
             }
-        } 
+        }
     }
 
     public function open(?string $path,?string $name):bool
