@@ -80,9 +80,10 @@ class Sessions extends SessionCore
                         "httponly"=>($config["httponly"] ?? false),
                         "samesite"=>($config["samesite"] ?? "lax"),
                     ]);
-                    
+
                     // Load session_start
-                    session_start();
+                    
+                    $this->generateSessions();
                 }
             }
             else
