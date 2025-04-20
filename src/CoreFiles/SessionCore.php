@@ -2,6 +2,8 @@
 
 namespace LazarusPhp\SessionManager\CoreFiles;
 
+use Exception;
+
 class SessionCore
 {
     private $errors = [];
@@ -20,11 +22,27 @@ class SessionCore
                 }
                 // Merge
             $this->config = array_merge($config,$this->config);
+   
             }
         }
         return $this->config;
     }
 
+
+    protected function generateSessions($regenerate=false)
+    {
+        if($regenerate==true)
+        {
+            session_write_close();
+            session_start();
+            session_regenerate_id(false);
+        }
+        else
+        {
+            session_start();
+        }
+    }   
+    
     private function getUnsupportedKeys($keys, $supportedKeys)
     {
         $unsupported = array_diff($keys, $supportedKeys);
