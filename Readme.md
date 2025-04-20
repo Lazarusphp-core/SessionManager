@@ -60,6 +60,9 @@ $sessions->instantiate([SessionWriter::class],
 ]);
 ```
 
+**Note about Defaults**
+By default days and table are already applied and are defaulted adding these key pairs will overwrite default values.
+
 SessionManager class also offers a Factory Class option giving a quicker more effient method to call and instantiate the class.
 
 optionally the second parameter also now supports Additional Values including 
@@ -67,13 +70,11 @@ optionally the second parameter also now supports Additional Values including
 * path
     * this sets the path in which the sessions will read from : leaving this out will default to / (all paths)
 * sameSite
-    * set wether the session is strict or lax
-* httpOnly
+    * set wether the session is strict or lax : default is lax set this to set samesite=>"strict" within the boot parameters to change this.
+* httponly
     * when set to true http will only try and send http Requests.
 * secure
     * forces the use of https
-* domain
-    * set the domain in which the sessions can be read from, by default domain is set to ".".$_SERVER['HTTP_HOST'] allowing all domains and subdomains to be utilise the sessions.
 
 ```php
 use LazarusPhp\SessionsManager\SessionsFactory as Sessions;
