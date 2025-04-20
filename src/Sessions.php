@@ -66,10 +66,23 @@ class Sessions extends SessionCore
                     if (!is_int($expiry)) {
                         throw new \Exception("Invalid expiration timestamp generated for cookie.");
                     }
-                    session_set_cookie_params($expiry,$path="/",".".$_SERVER['HTTP_HOST']);
+
+                    
+                    if (!empty($config['sessionName'])) {
+                        session_name($config['sessioname']);
+                    }
+
+                    session_set_cookie_params([
+                        "lifetime" => $expiry,
+                        "path" => ($config["path"] ?? "/"),
+                        "domain"=> $_SERVER['HTTP_HOST'],
+                        "secure"=> ($config["secure"] ?? false),
+                        "httponly"=>($config["httponly"] ?? false),
+                        "samesite"=>($config["samesite"] ?? "lax"),
+                    ]);
+                    
                     // Load session_start
                     session_start();
-                    session_regenerate_id(false);
                 }
             }
             else
