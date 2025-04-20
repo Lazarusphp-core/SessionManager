@@ -61,9 +61,15 @@ class Sessions extends SessionCore
                 
                     session_set_save_handler($handle);
                     $handle->passConfig($config);
-                    setcookie(session_name(), session_id(), Date::asTimestamp(Date::withAddedTime("now","P".$config['days']."D")), "/", "." . $_SERVER['HTTP_HOST']);
+
+                    $expiry = Date::asTimestamp(Date::withAddedTime("now", "P" . $config['days'] . "D"));
+                    if (!is_int($expiry)) {
+                        throw new \Exception("Invalid expiration timestamp generated for cookie.");
+                    }
+                    session_set_cookie_params($expiry,$path="/",".".$_SERVER['HTTP_HOST']);
                     // Load session_start
                     session_start();
+                    session_regenerate_id(false);
                 }
             }
             else
