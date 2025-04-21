@@ -47,7 +47,6 @@ use LazarusPhp\SessionsManager\Sessions;
 $session = new Sessions();
 $sessions->instantiate([SessionWriter::class]);
 ```
-
 optionally a second parameter $config can be added into the instantiate method, this is a set of key pair arrays  and can be done like so
 
 ```php

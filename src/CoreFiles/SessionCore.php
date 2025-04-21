@@ -27,21 +27,6 @@ class SessionCore
         }
         return $this->config;
     }
-
-
-    protected function generateSessions($regenerate=false)
-    {
-        if($regenerate==true)
-        {
-            session_write_close();
-            session_start();
-            session_regenerate_id(false);
-        }
-        else
-        {
-            session_start();
-        }
-    }   
     
     private function getUnsupportedKeys($keys, $supportedKeys)
     {
