@@ -42,7 +42,7 @@ class SessionWriter Implements SessionHandlerInterface
 
     public function write(string $sessionID,string $data):bool
     {
-        $date = Date::withAddedTime("now","P".$this->config["days"]."D")->format("y-m-d h:i:s");  
+        $date = Date::withAddedTime("now","P".$this->config["days"]."D")->format("y-m-d H:i:s");  
         $params = ["session_id"=>$sessionID,"data"=>$data,"expiry"=>$date];
         return QueryBuilder::table($this->config["table"])->replace($params) ? true : false;
     } 
